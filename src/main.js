@@ -24,6 +24,25 @@ axios.defaults.baseURL = "http://www.liulongbin.top:3005"
 import VuePreview from 'vue2-preview'
 Vue.use(VuePreview)
 
+import Vuex from 'vuex'
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+    state: {
+        count: 0
+    },
+    mutations: {
+        i (state) {
+            state.count++
+        }
+    },
+    getters:{
+        i:function (state) {
+            return 'count值是'+state.count
+        }
+    }
+})
+
 // 导入格式化时间的插件
 import moment from 'moment'
 // 定义全局的过滤器
@@ -34,5 +53,6 @@ Vue.filter('dateFormat', function (dataStr, pattern = "YYYY-MM-DD HH:mm:ss") {
 new Vue({
     el: '#app',
     render: c => c(app),
-    router
+    router,
+    store
 })

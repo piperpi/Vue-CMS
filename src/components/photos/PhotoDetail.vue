@@ -62,7 +62,6 @@
                     .then(function (response) {
                         if (response.data.status === 0) {
                             _this.thumimages = response.data.message
-                            console.log(_this.thumimages)
                             _this.thumimages.forEach(item=>{
                                 item.w = 600
                                 item.h=400

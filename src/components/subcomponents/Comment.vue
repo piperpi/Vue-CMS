@@ -32,11 +32,12 @@
         created() {
             if (this.$route.params.newid) {
                 this.id = this.$route.params.newid
-                this.getComments(this.id, 1)
             } else if (this.$route.params.imgid) {
                 this.id = this.$route.params.imgid
-                this.getComments(this.id, 1)
+            }else {
+                this.id = this.$route.params.id
             }
+            this.getComments(this.id, 1)
         },
         methods: {
             getComments(artid, pageindex) {
