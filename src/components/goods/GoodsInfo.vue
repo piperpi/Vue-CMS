@@ -28,7 +28,7 @@
                     <p class="price">
                         市场价：<del>￥{{ goodsinfo.market_price }}</del>&nbsp;&nbsp;销售价：<span class="now_price">￥{{ goodsinfo.sell_price }}</span>
                     </p>
-                    <p>购买数量：<numbox></numbox></p>
+                    <p>购买数量：<numbox @setCount="setSelectedCount" :numbox_max="goodsinfo.stock_quantity"></numbox></p>
                     <p>
                         <mt-button type="primary" size="small">立即购买</mt-button>
                         <mt-button type="danger" size="small" @click="addToShopCar">加入购物车</mt-button>
@@ -67,7 +67,7 @@
                 lunbotu: [], // 轮播图的数据
                 goodsinfo: {}, // 获取到的商品的信息
                 ballFlag: false, // 控制小球的隐藏和显示的标识符
-                selectedCount: 1 // 保存用户选中的商品数量， 默认，认为用户买1个
+                selectedCount: 1, // 保存用户选中的商品数量， 默认，认为用户买1个
             };
         },
         created() {
@@ -103,9 +103,19 @@
                 // 点击跳转到 评论页面
                 this.$router.push({ name: "goodscomment", params: { id } });
             },
+            setSelectedCount(selectedCount){
+              this.selectedCount =parseInt(selectedCount)
+            },
             addToShopCar() {
                 // 添加到购物车
                 this.ballFlag = !this.ballFlag;
+                var goodsinfo ={
+                    id:this.id,
+                    count:this.selectedCount,
+                    price:this.goodsinfo.sell_price,
+                    selected:true
+                }
+                this.$store.commit('addToCart',goodsinfo)
             },
             beforeEnter(el) {
                 el.style.transform = "translate(0, 0)";
@@ -126,6 +136,7 @@
             },
             afterEnter(el) {
                 this.ballFlag = !this.ballFlag;
+
             },
         },
         components: {

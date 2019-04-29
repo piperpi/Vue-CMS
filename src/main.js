@@ -27,19 +27,58 @@ Vue.use(VuePreview)
 import Vuex from 'vuex'
 Vue.use(Vuex)
 
+var cart = JSON.parse(localStorage.getItem('cart')||'[]')
 const store = new Vuex.Store({
     state: {
-        count: 0
+        cart: cart
     },
     mutations: {
-        i (state) {
-            state.count++
+        addToCart (state,goodsinfo) {
+            //如之前此商品未加入购物车，flag为false
+            var flag = false
+            state.cart.some(item=>{
+                if(item.id ===goodsinfo.id){
+                    item.count += goodsinfo.count
+                    flag = true
+                }
+            })
+            if(!flag){
+                state.cart.push(goodsinfo)
+            }
+
+            localStorage.setItem('cart',JSON.stringify(state.cart))
+        },
+        changeSelected(state,id){
+            state.cart.some(item=>{
+                if(item.id ==id){
+                    item.selected = !item.selected
+                }
+            })
+            localStorage.setItem('cart',JSON.stringify(state.cart))
         }
     },
     getters:{
-        i:function (state) {
-            return 'count值是'+state.count
-        }
+        cartCount:function (state) {
+            var totalCount = 0
+            state.cart.forEach(item=>{
+                totalCount+=item.count
+            })
+            return totalCount
+        },
+        goodsCount:function (state) {
+            var o = {}
+            state.cart.forEach(item=>{
+                o[parseInt(item.id)] = item.count
+            })
+            return o
+        },
+        goodsSelected:function (state) {
+            var o = {}
+            JSON.parse(localStorage.getItem('cart')||'[]').forEach(item=>{
+                o[item.id] = item.selected
+            })
+            return o
+        },
     }
 })
 
