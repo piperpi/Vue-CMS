@@ -51,7 +51,7 @@
                 this.$router.go(-1)
             },
             hasGoBack() {
-                if (this.$route.fullPath.split('/').length - 1 > 1) {
+                if (this.$route.fullPath != '/home') {
                     this.goBackFlag = true
                 } else {
                     this.goBackFlag = false

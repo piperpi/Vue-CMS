@@ -1,13 +1,14 @@
 <template>
     <div class="shopcar-container">
 
-        <div class="goods-list">
+        <div class="goods-list" v-if="hasgoods">
 
             <div class="mui-card" v-for="item in shopcarList" :key="item.id">
                 <div class="mui-card-content">
                     <div class="mui-card-content-inner goods-item">
                         <!-- 开关 -->
-                        <mt-switch v-model="$store.getters.goodsSelected[item.id]" @change="changeSelected(item.id)"></mt-switch>
+                        <mt-switch v-model="$store.getters.goodsSelected[item.id]"
+                                   @change="changeSelected(item.id)"></mt-switch>
                         <!-- 图片 -->
                         <img :src="item.thumb_path" alt="">
                         <!-- 信息区域 -->
@@ -15,16 +16,15 @@
                             <h1>{{item.title}}</h1>
                             <div class="goods-info">
                                 <span class="price">￥{{item.sell_price}}</span>
-                                <!-- countObj[item.id] 表示这条商品对应的数量 -->
                                 <div class="mui-numbox" data-numbox-min='1' style="height: 25px;">
                                     <button class="mui-btn mui-btn-numbox-minus" type="button">-</button>
-                                    <!-- 监听文本框的 change 事件，来动态获取选择到的数量 -->
-                                    <input id="test" class="mui-input-numbox" type="number"
-                                           :value="$store.getters.goodsCount[item.id]"/>
+                                    <input class="mui-input-numbox" type="number"
+                                           :value="$store.getters.goodsCount[item.id]"
+                                           @change="goodsCountChange(item.id)" :ref="'goodsCount'+item.id"/>
                                     <button class="mui-btn mui-btn-numbox-plus" type="button">+</button>
                                 </div>
 
-                                <a href="#">删除</a>
+                                <a href="#" @click.prevent="deleteGood(item.id)">删除</a>
                             </div>
                         </div>
                     </div>
@@ -38,7 +38,8 @@
                         <div class="left">
                             <p>总计（不含运费）</p>
                             <p>
-                                已勾选商品<span class="danger">2</span>件，总价<span class="danger">￥2</span>
+                                已勾选商品<span class="danger">{{$store.getters.goodsTotalCount}}</span>件，总价<span
+                                    class="danger">￥{{$store.getters.goodsTotalPrice}}</span>
                             </p>
                         </div>
                         <mt-button type="danger">去结算</mt-button>
@@ -54,15 +55,17 @@
 
 <script>
     import mui from "../../../lib/mui/js/mui.min.js"
+
+    import {Toast} from 'mint-ui';
+
     export default {
         name: "Cart",
-        mounted() {
-            // mui在mui.init()中会自动初始化基本控件,但是 动态添加的Numbox组件需要手动初始化
+        updated() {
             mui('.mui-numbox').numbox()
-
         },
         data() {
             return {
+                hasgoods: false,
                 shopcarList: [],
             }
         },
@@ -76,12 +79,32 @@
                     ids.push(item.id)
                 })
                 var _this = this
-                this.axios.get('api/goods/getshopcarlist/' + ids.join(',')).then(function (res) {
-                    _this.shopcarList = res.data.message
-                })
+                if (ids.length > 0) {
+                    this.axios.get('api/goods/getshopcarlist/' + ids.join(',')).then(function (res) {
+                            _this.shopcarList = res.data.message
+                        }
+                    )
+                    _this.hasgoods = true
+                } else {
+
+                    this.hasgoods = false
+                    Toast('请加入商品入购物车');
+                }
             },
-            changeSelected(id){
-                this.$store.commit('changeSelected',id)
+            changeSelected(id) {
+                this.$store.commit('changeSelected', id)
+            },
+            goodsCountChange(id) {
+                var count = this.$refs['goodsCount' + id][0].value
+                var goodsCount = {
+                    id,
+                    count
+                }
+                this.$store.commit('updateGoodsCount', goodsCount)
+            },
+            deleteGood(id) {
+                this.$store.commit('deleteGood', id)
+                this.getShopcarList()
             }
         }
     }

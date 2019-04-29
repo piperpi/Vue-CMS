@@ -39,19 +39,39 @@ const store = new Vuex.Store({
             state.cart.some(item=>{
                 if(item.id ===goodsinfo.id){
                     item.count += goodsinfo.count
+                    item.selected = true
                     flag = true
+                    return true
                 }
             })
             if(!flag){
                 state.cart.push(goodsinfo)
             }
-
             localStorage.setItem('cart',JSON.stringify(state.cart))
         },
         changeSelected(state,id){
             state.cart.some(item=>{
                 if(item.id ==id){
                     item.selected = !item.selected
+                    return true
+                }
+            })
+            localStorage.setItem('cart',JSON.stringify(state.cart))
+        },
+        updateGoodsCount(state,goodsCount){
+            state.cart.some(item=>{
+                if(item.id ==goodsCount.id){
+                    item.count = parseInt(goodsCount.count)
+                    return true
+                }
+            })
+            localStorage.setItem('cart',JSON.stringify(state.cart))
+        },
+        deleteGood(state,id){
+            state.cart.some((item,index)=>{
+                if(item.id ==id){
+                    state.cart.splice(index,1)
+                    return true
                 }
             })
             localStorage.setItem('cart',JSON.stringify(state.cart))
@@ -74,10 +94,26 @@ const store = new Vuex.Store({
         },
         goodsSelected:function (state) {
             var o = {}
-            JSON.parse(localStorage.getItem('cart')||'[]').forEach(item=>{
+            state.cart.forEach(item=>{
                 o[item.id] = item.selected
             })
             return o
+        },
+        goodsTotalCount:function (state) {
+            var totalCount = 0
+            state.cart.forEach(item=>{
+                if(item.selected){
+                totalCount +=item.count}
+            })
+            return totalCount
+        },
+        goodsTotalPrice:function (state) {
+            var totalPrice = 0
+            state.cart.forEach(item=>{
+                if(item.selected){
+                totalPrice +=item.count*item.price}
+            })
+            return totalPrice
         },
     }
 })
